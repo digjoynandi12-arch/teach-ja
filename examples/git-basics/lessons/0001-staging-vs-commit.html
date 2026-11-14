@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>レッスン1: ステージングとコミットの違い</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<main>
+
+<p class="kicker">レッスン 1 ・ 約20分</p>
+<h1>ステージングとコミットの違い</h1>
+<p class="lede">変更は「3つの場所」を順に進みます。<code>git add</code> と <code>git commit</code> は、その場所を1つずつ進めるコマンドです。</p>
+
+<div class="goal">
+  <strong>今日できるようになること</strong><br>
+  <code>git status</code> の表示を見て、変更が今どこにあるかを言える。そして、手元の変更のうち選んだ分だけをコミットできる。
+</div>
+
+<p>プルリクエスト（pull request）でレビューする人が読むのは、あなたのコミットです。「何をコミットに入れるか」を自分で選べることが、来月のチーム開発の土台になります。</p>
+
+<h2>1. 変更が通る3つの場所</h2>
+
+<p>Gitで管理しているフォルダーには、ファイルの内容を置く場所が3つあります<a class="cite" href="#src-1">[1]</a>。</p>
+
+<div class="flow">
+  <div class="box"><b>作業ディレクトリ</b><span>（working directory）<br>今、エディターで編集しているファイルそのもの</span></div>
+  <div class="arrow"><code>git add</code></div>
+  <div class="box"><b>ステージングエリア</b><span>（staging area）<br>次のコミットに入れる内容の置き場</span></div>
+  <div class="arrow"><code>git commit</code></div>
+  <div class="box"><b>リポジトリ</b><span>（repository）<br>コミットが積み重なった履歴</span></div>
+</div>
+
+<ul>
+  <li><strong>ステージする</strong>（<code>git add</code>）: 作業ディレクトリの今の内容を、ステージングエリアに写します。「次のコミットにはこれを入れる」と選ぶ操作です。履歴にはまだ何も記録されません。</li>
+  <li><strong>コミット（commit）する</strong>（<code>git commit</code>）: ステージングエリアの内容を、メッセージ付きで履歴に記録します。</li>
+</ul>
+
+<div class="callout">
+  <p><strong>ここが要点です。</strong>コミットが記録するのは、作業ディレクトリではなく<span class="em-dot">ステージングエリア</span>の内容です。Pro Gitにも「コミットが記録するのは、ステージングエリアのスナップショットである」と書かれています<a class="cite" href="#src-2">[2]</a>。</p>
+</div>
+
+<p>買い物にたとえると、作業ディレクトリは棚の前で手に取った商品、ステージングエリアは買い物かご、コミットはレジでの会計です。かごに入れていない商品は、会計には含まれません。</p>
+
+<h3>なぜ、わざわざ2段階なのでしょうか</h3>
+<p>作業中は、関係のない変更が混ざりがちです。バグを直しながら、ついでに別のファイルの誤字も直した、という場面です。ステージングエリアがあるおかげで、「バグ修正」と「誤字修正」を別々のコミットに分けられます。1つのコミットが1つの目的にまとまっていると、レビューする人は読みやすくなります。</p>
+
+<h2>2. 動かして確かめる</h2>
+
+<p>下のシミュレーターで、<code>memo.txt</code> という1つのファイルが3つの場所をどう進むかを確かめてください。朱色の行は「右隣の場所にまだ届いていない行」です。ボタンを押す前に、どの欄がどう変わるかを予想してから押すと、よく身につきます。</p>
+
+<div class="three-areas">
+  <script type="application/json">
+  { "file": "memo.txt",
+    "lines": ["牛乳", "卵", "パン", "バター", "りんご", "お茶"],
+    "tasks": [
+      { "text": "「牛乳」の1行だけを書き、リポジトリまで届けてください。", "working": 1, "staged": 1, "committed": 1 },
+      { "text": "3つの場所の行数をすべて違う状態にしてください（リポジトリ1行、ステージングエリア2行、作業ディレクトリ3行）。", "working": 3, "staged": 2, "committed": 1 },
+      { "text": "ここで git commit を1回だけ押します。リポジトリは何行になるでしょうか。予想してから押してください。", "working": 3, "staged": 2, "committed": 2 },
+      { "text": "最後に、3つの場所をすべて同じ内容にそろえてください。", "working": 3, "staged": 3, "committed": 3 }
+    ] }
+  </script>
+</div>
+
+<p>課題3で、リポジトリは3行ではなく2行になりました。<code>git add</code> したあとに書き足した「パン」は、ステージングエリアに入っていないからです。Gitは「<code>git add</code> コマンドを実行した時点の状態のファイル」をステージします<a class="cite" href="#src-2">[2]</a>。あとから編集した分を入れたいときは、もう一度 <code>git add</code> します。</p>
+
+<h2>3. <code>git status</code> を読む</h2>
+
+<p><code>git status</code> は、変更が今どこにあるかを教えてくれるコマンドです<a class="cite" href="#src-2">[2]</a>。迷ったら、まずこれを打ちます。見出しは英語ですが、覚えるのは3つだけです。</p>
+
+<table>
+  <thead><tr><th>見出し</th><th>意味</th><th>コミットに入るか</th></tr></thead>
+  <tbody>
+    <tr><td><code>Changes to be committed</code></td><td>ステージ済みの変更。ステージングエリアにあります。</td><td>入ります</td></tr>
+    <tr><td><code>Changes not staged for commit</code></td><td>編集したが、まだステージしていない変更。作業ディレクトリだけにあります。</td><td>入りません</td></tr>
+    <tr><td><code>Untracked files</code></td><td>Gitがまだ一度も追跡していない新しいファイル。</td><td>入りません</td></tr>
+  </tbody>
+</table>
+
+<p>同じファイルが上の2つの欄に同時に出ることがあります。シミュレーターの課題2の状態です。故障ではなく、「ステージした分」と「そのあと編集した分」が両方ある、という意味です。</p>
+
+<h2>4. 自分のターミナルで試す</h2>
+
+<p>練習用のフォルダーを作って、本物のGitで同じことを確かめます。仕事のリポジトリには触りません。各手順で、<code>git status</code> の表示を<span class="em-dot">予想してから</span>実行してください。</p>
+
+<ol class="steps">
+  <li>練習用のリポジトリを作ります。
+<pre><code>mkdir git-practice
+cd git-practice
+git init</code></pre>
+  </li>
+  <li>ファイルを作って、状態を見ます。
+<pre><code>echo "牛乳" > memo.txt
+git status</code></pre>
+    <p class="check"><code>Untracked files</code> の欄に <code>memo.txt</code> が出ます。</p>
+  </li>
+  <li>ステージして、もう一度見ます。
+<pre><code>git add memo.txt
+git status</code></pre>
+    <p class="check"><code>Changes to be committed</code> の欄に移ります。</p>
+  </li>
+  <li>コミットします。
+<pre><code>git commit -m "買い物メモを追加"
+git status</code></pre>
+    <p class="check"><code>nothing to commit</code> と出ます。3つの場所が同じ内容になった、という意味です。</p>
+  </li>
+  <li>ここからが本番です。ステージしたあとに、もう一度編集します。
+<pre><code>echo "卵" >> memo.txt
+git add memo.txt
+echo "パン" >> memo.txt
+git status</code></pre>
+    <p class="check"><code>memo.txt</code> が <code>Changes to be committed</code> と <code>Changes not staged for commit</code> の両方に出ます。</p>
+  </li>
+  <li>2種類の差分を見比べます。実行する前に、どちらに「卵」が出て、どちらに「パン」が出るかを予想してください。
+<pre><code>git diff --staged
+git diff</code></pre>
+    <details>
+      <summary>答えを見る</summary>
+      <p><code>git diff --staged</code> は、ステージングエリアと最後のコミットを比べるので「卵」が出ます。<code>git diff</code> は、作業ディレクトリとステージングエリアを比べるので「パン」が出ます<a class="cite" href="#src-2">[2]</a>。</p>
+    </details>
+  </li>
+  <li>コミットして、状態を見ます。
+<pre><code>git commit -m "卵を追加"
+git status</code></pre>
+    <p class="check">コミットしたのに、<code>memo.txt</code> が <code>Changes not staged for commit</code> に残ります。「パン」はステージしていなかったからです。</p>
+  </li>
+</ol>
+
+<div class="callout">
+  <p><strong>表示が違ったときは。</strong>この手順の表示は、Pro Gitの記載<a class="cite" href="#src-2">[2]</a>をもとに書き、2026年11月15日に実際のターミナルで確認しました。Gitのバージョンによって文言が少し違うことがあります。手順4で名前とメールアドレスの設定を求められたら、Pro Gitの「<a href="https://git-scm.com/book/ja/v2/使い始める-最初のGitの構成">最初のGitの構成</a>」を見るか、表示をそのままエージェントに貼ってください。</p>
+</div>
+
+<h2>5. 思い出して答える</h2>
+
+<p>上を見返さずに答えてください。思い出そうとすること自体が、記憶を強くします。</p>
+
+<div class="quiz">
+  <script type="application/json">
+  { "q": "git commit が履歴に記録するのは、どの内容ですか。",
+    "options": ["ステージングエリアにある内容", "作業ディレクトリにある最新の内容", "前回のコミット以降の全変更内容", "追跡されていないファイルの内容"],
+    "answer": 0,
+    "explain": "コミットが記録するのは、ステージングエリアの内容です。ステージしていない変更は、作業ディレクトリに残ります（Pro Git 2.2）。" }
+  </script>
+</div>
+
+<div class="quiz">
+  <script type="application/json">
+  { "q": "memo.txt を編集して git add し、さらにもう一度編集してから git commit しました。コミットに入るのはどれですか。",
+    "options": ["1回目の編集までの内容", "2回目の編集までの内容", "編集する前の元々の内容", "どちらも入らない空の内容"],
+    "answer": 0,
+    "explain": "Gitは git add を実行した時点の内容をステージします。2回目の編集を入れるには、もう一度 git add が必要です（Pro Git 2.2）。" }
+  </script>
+</div>
+
+<div class="quiz">
+  <script type="application/json">
+  { "q": "git status に「Changes not staged for commit」と出ました。この変更は今どこにありますか。",
+    "options": ["作業ディレクトリだけにある", "ステージングエリアだけにある", "リポジトリの履歴だけにある", "GitHubの上だけにある"],
+    "answer": 0,
+    "explain": "編集はしたが、まだ git add していない変更です。このままコミットしても入りません（Pro Git 2.2）。" }
+  </script>
+</div>
+
+<div class="quiz">
+  <script type="application/json">
+  { "q": "2つのファイルを直しましたが、今回のコミットには片方だけを入れたいです。どうしますか。",
+    "options": ["入れたい方だけを git add する", "入れない方だけを git add する", "両方のファイルを git add する", "add をせずにコミットだけする"],
+    "answer": 0,
+    "explain": "git add は「次のコミットに入れる内容」を選ぶ操作です。ステージしなかったファイルの変更は、作業ディレクトリに残ります。" }
+  </script>
+</div>
+
+<p class="quiz-score" data-quiz-score></p>
+
+<h2>6. 次に読むもの</h2>
+
+<p>今日の内容の一次情報源は、Pro Git 第2版の次の節です。Git公式サイトに日本語訳があります。レッスンの手順と同じ流れを、もう少し詳しく説明しています。</p>
+<ul>
+  <li><span class="lang-tag">日本語</span><a href="https://git-scm.com/book/ja/v2/Git-の基本-変更内容のリポジトリへの記録">Pro Git 2.2 変更内容のリポジトリへの記録</a>（<span class="lang-tag">英語</span><a href="https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository">原文</a>）</li>
+</ul>
+<p>日本語訳は少し古く、「ステージング・エリア」という表記や <code>master</code> というブランチ名が出てきます。このレッスンの「ステージングエリア」と同じものです。</p>
+
+<p>早見表は <a href="../reference/staging-and-commit.html">リファレンス: ステージングとコミット</a> にまとめました。印刷もできます。</p>
+
+<p>社内の #git-help チャンネルで「コミットはどのくらいの単位に分けていますか」と聞いてみるのもおすすめです。チームごとの習慣は、本には載っていません。</p>
+
+<h2>出典</h2>
+<ol class="sources">
+  <li id="src-1"><span class="lang-tag">日本語</span><a href="https://git-scm.com/book/ja/v2/使い始める-Gitの基本">Pro Git 第2版 1.3 Gitの基本</a>「三つの状態」。本文では「Gitディレクトリ、作業ディレクトリ、ステージング・エリア」と書かれています。このレッスンでは、Gitディレクトリに記録された履歴を「リポジトリ」と呼んでいます。</li>
+  <li id="src-2"><span class="lang-tag">日本語</span><a href="https://git-scm.com/book/ja/v2/Git-の基本-変更内容のリポジトリへの記録">Pro Git 第2版 2.2 変更内容のリポジトリへの記録</a></li>
+  <li id="src-3"><span class="lang-tag">日本語</span><a href="https://docs.github.com/ja/get-started/using-git/about-git">GitHub Docs: Git について</a>（基本コマンドの一覧）</li>
+</ol>
+
+<div class="ask-teacher">
+  わからないところは、遠慮なくエージェントに質問してください。ターミナルの表示をそのまま貼ってもらえれば、一緒に読み解きます。
+</div>
+
+<nav class="lesson-nav">
+  <a href="../reference/staging-and-commit.html">リファレンス: ステージングとコミット</a>
+  <a href="0002-reading-history.html">レッスン2: 履歴を読む・コミットを分ける →</a>
+</nav>
+
+</main>
+<script src="../assets/three-areas.js"></script>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

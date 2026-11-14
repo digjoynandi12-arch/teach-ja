@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>レッスン2: 履歴を読む・コミットを分ける</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<main>
+
+<p class="kicker">レッスン 2 ・ 約20分</p>
+<h1>履歴を読む・コミットを分ける</h1>
+<p class="lede"><code>git log</code> は、積み重なったコミットを読むコマンドです。読む側に立つと、どんなコミットを作ればよいかが見えてきます。</p>
+
+<div class="goal">
+  <strong>今日できるようになること</strong><br>
+  <code>git log</code> で履歴を読み、どのコミットが何を変えたかを言える。そして、混ざった変更を「1つの目的に1つのコミット」に分け、内容が伝わるメッセージを付けられる。
+</div>
+
+<p>プルリクエスト（pull request）を出すと、レビューする人はあなたのコミットを1つずつ読みます。今日は先に「読む側」を体験し、そのあとで「読まれる側」としてコミットを作ります。</p>
+
+<h2>1. まず、前回を思い出す</h2>
+
+<p><a href="0001-staging-vs-commit.html">レッスン1</a> を見返さずに答えてください。時間をあけて思い出すことが、記憶を長持ちさせます。</p>
+
+<div class="quiz">
+  <script type="application/json">
+  { "q": "report.txt を編集して git add しました。そのあと1行書き足し、そのまま git commit しました。書き足した1行は、今どこにありますか。",
+    "options": ["作業ディレクトリだけにある", "ステージングエリアだけにある", "最新のコミットの中だけにある", "3つの場所すべてに入っている"],
+    "answer": 0,
+    "explain": "ステージングエリアは「次のコミットの下書き」で、git add した時点の内容が入ります。あとから書き足した1行は、もう一度 git add するまで作業ディレクトリだけにあります（Pro Git 2.2）。" }
+  </script>
+</div>
+
+<div class="quiz">
+  <script type="application/json">
+  { "q": "git diff --staged が表示するのは、どの2つの差分ですか。",
+    "options": ["ステージングエリアと最後のコミット", "作業ディレクトリとステージングエリア", "作業ディレクトリと最後のコミット", "最後のコミットとその1つ前のコミット"],
+    "answer": 0,
+    "explain": "git diff --staged は「次のコミットに入る変更」を見せます。オプションなしの git diff は、まだステージしていない変更を見せます（Pro Git 2.2）。" }
+  </script>
+</div>
+
+<h2>2. 履歴は、コミットの積み重ね</h2>
+
+<p><code>git commit</code> をするたびに、リポジトリ（repository）にコミットが1つ積まれます。この積み重ねが履歴です。<code>git log</code> は、それを<strong>新しい順</strong>に表示します。つまり、直近のコミットがいちばん上に出ます<a class="cite" href="#src-1">[1]</a>。</p>
+
+<pre><code>$ git log
+commit 3f2a9c1e5b7d…（40文字） (HEAD -> main)
+Author: 山田 花子 &lt;hanako@example.com&gt;
+Date:   Sun Nov 15 10:12:45 2026 +0900
+
+    卵を追加
+
+commit b81d04e9a6c2…（40文字）
+Author: 山田 花子 &lt;hanako@example.com&gt;
+Date:   Sun Nov 15 10:05:10 2026 +0900
+
+    買い物メモを追加</code></pre>
+
+<p>これは形を示すための例で、値は架空です。1つのコミットにつき、次の4つが表示されます<a class="cite" href="#src-1">[1]</a>。</p>
+
+<table>
+  <thead><tr><th>行</th><th>意味</th></tr></thead>
+  <tbody>
+    <tr><td><code>commit 3f2a9c1…</code></td><td><strong>コミットハッシュ（commit hash）</strong>。コミット1つずつに付く、重複しない名前です。先頭の7文字ほどでも通じます。</td></tr>
+    <tr><td><code>Author:</code></td><td>コミットした人の名前とメールアドレス。</td></tr>
+    <tr><td><code>Date:</code></td><td>コミットした日時。</td></tr>
+    <tr><td>字下げされた行</td><td><strong>コミットメッセージ（commit message）</strong>。<code>git commit -m "…"</code> で付けた説明です。</td></tr>
+  </tbody>
+</table>
+
+<p><code>(HEAD -> main)</code> のような表示は、ブランチのレッスンで扱います。今は読み飛ばしてかまいません。Pro Gitでは、コミットハッシュを「SHA-1 チェックサム」と呼んでいます。同じものです。</p>
+
+<h3>見たいものに合わせて、表示を変える</h3>
+
+<table>
+  <thead><tr><th>コマンド</th><th>見えるもの</th><th>使う場面</th></tr></thead>
+  <tbody>
+    <tr><td><code>git log --oneline</code></td><td>1コミットを1行で。短いハッシュとメッセージの1行目<a class="cite" href="#src-3">[3]</a></td><td>全体の流れをつかむ</td></tr>
+    <tr><td><code>git log --stat</code></td><td>各コミットで変更されたファイルの一覧と、追加・削除された行数<a class="cite" href="#src-1">[1]</a></td><td>どのコミットがどのファイルに触ったかを見る</td></tr>
+    <tr><td><code>git log -p</code></td><td>各コミットの差分そのもの<a class="cite" href="#src-1">[1]</a></td><td>変更の中身を読む</td></tr>
+    <tr><td><code>git log -2</code></td><td>直近の2件だけ（数字は自由）<a class="cite" href="#src-1">[1]</a></td><td>最近の分だけ見る。上の3つと組み合わせられます</td></tr>
+    <tr><td><code>git show</code></td><td>最新のコミット1つの、メッセージと差分<a class="cite" href="#src-4">[4]</a></td><td>今コミットしたものを確かめる</td></tr>
+  </tbody>
+</table>
+
+<div class="callout">
+  <p><strong>画面が止まったら <code>q</code> を押します。</strong>Gitは長い出力を1ページずつ表示します<a class="cite" href="#src-1">[1]</a>。左下に <code>:</code> が出て入力できなくなったように見えたら、スペースキーで次のページ、<code>q</code> で終了です。壊れたわけではありません。</p>
+</div>
+
+<h2>3. 読みやすい履歴は、分け方とメッセージで決まる</h2>
+
+<p>次の2つの履歴を見比べてください。どちらも、同じ変更を記録したものです。</p>
+
+<pre><code>e09a6b3 いろいろ修正</code></pre>
+
+<pre><code>7c5e2fa READMEの誤字を修正
+b81d04e ボタンの色を青に変更
+3f2a9c1 空のパスワードでログインできるバグを修正</code></pre>
+
+<p>下の履歴なら、レビューする人はバグ修正だけを落ち着いて読めます。あとで「このバグはいつ直したのか」を探すときも、すぐに見つかります。Pro Gitは、コミットの指針として次の2つを挙げています<a class="cite" href="#src-2">[2]</a>。</p>
+
+<ul>
+  <li><strong>1つの目的に、1つのコミット。</strong>「コミットの単位が論理的に独立した変更となるように」し、修正した問題ごとにコミットを分けます。分けるのはファイルごとではなく、<span class="em-dot">目的ごと</span>です。1つのバグ修正が2つのファイルにまたがるなら、その2つは同じコミットに入れます。</li>
+  <li><strong>メッセージの1行目は、変更の短い概要。</strong>Pro Gitは、1行目に概要を書き、詳しい説明が必要なら空行を1つはさんで続ける形を勧めています。「修正」「更新」だけでは、読む人は差分を開くまで何もわかりません。</li>
+</ul>
+
+<p>目的ごとに分けるための道具が、レッスン1のステージングエリア（staging area）です。「次のコミットの下書き」に、今回の目的に合う変更だけを入れます。</p>
+
+<h2>4. 動かして確かめる</h2>
+
+<p>作業ディレクトリ（working directory）に、4つのファイルの変更がたまっています。これを、レビューする人が読みやすいコミットに分けてください。入れたい変更をステージし、メッセージを選んで <code>git commit</code> を押します。コミットするたびに、履歴に講評が付きます。</p>
+
+<div class="commit-builder">
+  <script type="application/json">
+  { "changes": [
+      { "file": "login.js", "what": "パスワードが空のときはログインを拒否するように直した", "purpose": "bug" },
+      { "file": "README.md", "what": "「インストール」が「インストルー」になっていたのを直した", "purpose": "typo" },
+      { "file": "login.test.js", "what": "空のパスワードではログインできないことを確かめるテストを足した", "purpose": "bug" },
+      { "file": "style.css", "what": "送信ボタンの色を緑から青に変えた", "purpose": "color" }
+    ],
+    "purposes": { "bug": "ログインのバグ修正", "typo": "誤字の修正", "color": "ボタンの色の変更" },
+    "messages": [
+      { "text": "空のパスワードでログインできるバグを修正", "purpose": "bug" },
+      { "text": "READMEの誤字を修正", "purpose": "typo" },
+      { "text": "送信ボタンの色を青に変更", "purpose": "color" },
+      { "text": "いろいろ修正", "purpose": null }
+    ] }
+  </script>
+</div>
+
+<p>すべて「良い」になったら、もう一度やり直して、わざと全部を1つのコミットにまとめてみてください。講評がどう変わるかを見ると、分ける理由がはっきりします。</p>
+
+<h2>5. 自分のターミナルで試す</h2>
+
+<p>レッスン1で作った <code>git-practice</code> フォルダーの続きです。前回の最後、「パン」の行はステージしないまま残っていました。各手順で、表示を<span class="em-dot">予想してから</span>実行してください。</p>
+
+<ol class="steps">
+  <li>練習用のフォルダーに入り、これまでの履歴を読みます。
+<pre><code>cd git-practice
+git log</code></pre>
+    <p class="check">コミットが2つ出ます。上が「卵を追加」、下が「買い物メモを追加」です。新しいほうが上です。</p>
+  </li>
+  <li>買い物メモとは関係のない、別の目的の変更を足します。<code>git status</code> の表示を予想してから実行してください。
+<pre><code>echo "月曜: 掃除" > todo.txt
+git status</code></pre>
+    <details>
+      <summary>答えを見る</summary>
+      <p><code>memo.txt</code> が <code>Changes not staged for commit</code> に、<code>todo.txt</code> が <code>Untracked files</code> に出ます。目的の違う2つの変更が、作業ディレクトリに混ざっている状態です。</p>
+    </details>
+  </li>
+  <li>目的ごとに、2つのコミットに分けます。
+<pre><code>git add memo.txt
+git commit -m "パンを追加"
+git add todo.txt
+git commit -m "やることリストを追加"</code></pre>
+  </li>
+  <li>履歴を1行ずつで見ます。何行出て、いちばん上はどれでしょうか。
+<pre><code>git log --oneline</code></pre>
+    <p class="check">4行出ます。いちばん上が「やることリストを追加」です。行の先頭にあるのが、短いコミットハッシュです。</p>
+  </li>
+  <li>直近の2件について、どのファイルが変わったかを見ます。それぞれのコミットにどのファイル名が出るかを予想してください。
+<pre><code>git log --stat -2</code></pre>
+    <details>
+      <summary>答えを見る</summary>
+      <p>「やることリストを追加」には <code>todo.txt</code> だけが、「パンを追加」には <code>memo.txt</code> だけが出ます。目的ごとに分けたので、1つのコミットが1つのことだけを語っています。</p>
+    </details>
+  </li>
+  <li>最新のコミットの中身を読みます。レビューする人が見るのは、この表示に近いものです。
+<pre><code>git show</code></pre>
+    <p class="check">メッセージ「やることリストを追加」のあとに、<code>+月曜: 掃除</code> という行が出ます。先頭の <code>+</code> は、追加された行という意味です。</p>
+  </li>
+</ol>
+
+<div class="callout">
+  <p><strong>表示が違ったときは。</strong>この手順は、Pro Git<a class="cite" href="#src-1">[1]</a> とGitの公式リファレンス<a class="cite" href="#src-3">[3]</a><a class="cite" href="#src-4">[4]</a> をもとに書きました。今回は、教える側の環境で実際のGitを動かして確かめることができていません。手元の表示が上の説明と違ったら、表示をそのままエージェントに貼ってください。前回のあとに <code>git-practice</code> を触っていて、コミットの数が違う場合も同じです。</p>
+</div>
+
+<h2>6. 思い出して答える</h2>
+
+<p>上を見返さずに答えてください。</p>
+
+<div class="quiz">
+  <script type="application/json">
+  { "q": "git log をオプションなしで実行すると、コミットはどの順に表示されますか。",
+    "options": ["新しいコミットから順に表示", "古いコミットから順に表示", "変更の大きいコミットから表示", "メッセージの五十音順に表示"],
+    "answer": 0,
+    "explain": "git log はコミットを新しい順に表示します。直近のコミットがいちばん上です（Pro Git 2.3）。" }
+  </script>
+</div>
+
+<div class="quiz">
+  <script type="application/json">
+  { "q": "git log --oneline は、各コミットの何を表示しますか。",
+    "options": ["短いハッシュとメッセージの1行目", "変更されたファイルの一覧と行数", "追加・削除された行の差分の全文", "作者の名前とコミットした日時"],
+    "answer": 0,
+    "explain": "--oneline は1コミットを1行にまとめます。ファイルの一覧と行数は --stat、差分そのものは -p で見ます（Pro Git 2.3、Git Reference: git-log）。" }
+  </script>
+</div>
+
+<div class="quiz">
+  <script type="application/json">
+  { "q": "バグを直している途中で、関係のない誤字も直しました。どちらもまだコミットしていません。どうしますか。",
+    "options": ["目的ごとに2つのコミットに分ける", "まとめて1つのコミットに入れる", "ファイルごとに必ずコミットを分ける", "1行の変更ごとにコミットを分ける"],
+    "answer": 0,
+    "explain": "コミットの単位は「論理的に独立した変更」です。分ける基準はファイルや行数ではなく、目的です（Pro Git 5.2 コミットの指針）。" }
+  </script>
+</div>
+
+<div class="quiz">
+  <script type="application/json">
+  { "q": "コミットメッセージの1行目として、レビューする人にいちばん伝わるのはどれですか。",
+    "options": ["ログイン画面の誤字を修正", "いろいろなところを修正", "昨日の作業の続きを保存", "修正その2（最終版）"],
+    "answer": 0,
+    "explain": "1行目は変更の短い概要です。どこの何を変えたのかが、差分を開かなくてもわかるように書きます（Pro Git 5.2 コミットの指針）。" }
+  </script>
+</div>
+
+<p class="quiz-score" data-quiz-score></p>
+
+<h2>7. 次に読むもの</h2>
+
+<p>今日の内容の一次情報源は、Pro Git 第2版の次の節です。<code>git log</code> のオプションが、実際の出力と一緒に紹介されています。</p>
+<ul>
+  <li><span class="lang-tag">日本語</span><a href="https://git-scm.com/book/ja/v2/Git-の基本-コミット履歴の閲覧">Pro Git 2.3 コミット履歴の閲覧</a>（<span class="lang-tag">英語</span><a href="https://git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History">原文</a>）</li>
+</ul>
+<p>日本語訳は少し古く、例の日付は2008年で、ブランチ名は <code>master</code> です。また、<code>--oneline</code> ではなく <code>--pretty=oneline</code> という書き方で紹介されています。<code>--oneline</code> は、それにハッシュの短縮を加えた省略形です<a class="cite" href="#src-3">[3]</a>。節の後半（<code>--pretty=format</code> や <code>--graph</code>）は、今は読み飛ばしてかまいません。</p>
+
+<p>早見表は <a href="../reference/reading-history.html">リファレンス: 履歴を読む・コミットを分ける</a> にまとめました。印刷もできます。</p>
+
+<p>コミットメッセージの書き方は、チームごとに決まりがあることが多いです（日本語か英語か、先頭に種類を書くか、など）。社内の #git-help チャンネルで「コミットメッセージに決まった書き方はありますか」と聞いてみてください。チームのリポジトリで <code>git log --oneline</code> を打って、先輩たちのメッセージを読むのも良い方法です。</p>
+
+<h2>出典</h2>
+<ol class="sources">
+  <li id="src-1"><span class="lang-tag">日本語</span><a href="https://git-scm.com/book/ja/v2/Git-の基本-コミット履歴の閲覧">Pro Git 第2版 2.3 コミット履歴の閲覧</a></li>
+  <li id="src-2"><span class="lang-tag">日本語</span><a href="https://git-scm.com/book/ja/v2/Git-での分散作業-プロジェクトへの貢献">Pro Git 第2版 5.2 プロジェクトへの貢献</a>「コミットの指針」。1行目は「50文字以内」と書かれていますが、これは英語のメッセージを前提にした目安です。</li>
+  <li id="src-3"><span class="lang-tag">英語</span><a href="https://git-scm.com/docs/git-log">Git Reference: git-log</a>（<code>--oneline</code> は <code>--pretty=oneline --abbrev-commit</code> の省略形）</li>
+  <li id="src-4"><span class="lang-tag">英語</span><a href="https://git-scm.com/docs/git-show">Git Reference: git-show</a>（コミットに対してはメッセージと差分を表示。対象を省くと最新のコミット）</li>
+</ol>
+
+<div class="ask-teacher">
+  わからないところは、遠慮なくエージェントに質問してください。ターミナルの表示をそのまま貼ってもらえれば、一緒に読み解きます。
+</div>
+
+<nav class="lesson-nav">
+  <a href="0001-staging-vs-commit.html">← レッスン1: ステージングとコミットの違い</a>
+  <a href="../reference/reading-history.html">リファレンス: 履歴を読む・コミットを分ける →</a>
+</nav>
+
+</main>
+<script src="../assets/commit-builder.js"></script>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

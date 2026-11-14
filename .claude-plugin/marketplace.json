@@ -1,0 +1,12 @@
+{
+  "name": "teach-ja",
+  "owner": { "name": "teach-ja maintainers" },
+  "description": "日本語対応の /teach スキル — Japanese-ready teaching workspace skill",
+  "plugins": [
+    {
+      "name": "teach-ja",
+      "source": "./",
+      "description": "日本語対応の /teach スキル (Japanese-ready /teach skill)"
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リファレンス: 履歴を読む・コミットを分ける</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<main>
+
+<p class="kicker">リファレンス</p>
+<h1>履歴を読む・コミットを分ける</h1>
+<p class="lede">履歴を読むコマンドと、読みやすいコミットを作るための早見表です。</p>
+
+<h2>履歴を読むコマンド</h2>
+
+<table>
+  <thead><tr><th>コマンド</th><th>見えるもの</th></tr></thead>
+  <tbody>
+    <tr><td><code>git log</code></td><td>コミットを新しい順に。コミットハッシュ、作者、日時、コミットメッセージ。</td></tr>
+    <tr><td><code>git log --oneline</code></td><td>1コミットを1行で。短いハッシュとメッセージの1行目。</td></tr>
+    <tr><td><code>git log --stat</code></td><td>各コミットで変更されたファイルの一覧と、追加・削除された行数。</td></tr>
+    <tr><td><code>git log -p</code></td><td>各コミットの差分そのもの。</td></tr>
+    <tr><td><code>git log -2</code></td><td>直近の2件だけ。<code>--oneline</code>、<code>--stat</code>、<code>-p</code> と組み合わせられます。</td></tr>
+    <tr><td><code>git log -- ファイル名</code></td><td>そのファイルを変更したコミットだけ。</td></tr>
+    <tr><td><code>git show</code></td><td>最新のコミット1つの、メッセージと差分。</td></tr>
+    <tr><td><code>git show ハッシュ</code></td><td>指定したコミット1つの、メッセージと差分。</td></tr>
+  </tbody>
+</table>
+
+<p>出力が長いと1ページずつ表示されます。スペースキーで次のページ、<code>q</code> で終了です。</p>
+
+<h2><code>git log</code> の1コミット分の読み方</h2>
+
+<table>
+  <thead><tr><th>行</th><th>意味</th></tr></thead>
+  <tbody>
+    <tr><td><code>commit 3f2a9c1…</code></td><td>コミットハッシュ。コミット1つずつに付く、重複しない名前。</td></tr>
+    <tr><td><code>Author:</code></td><td>コミットした人の名前とメールアドレス。</td></tr>
+    <tr><td><code>Date:</code></td><td>コミットした日時。</td></tr>
+    <tr><td>字下げされた行</td><td>コミットメッセージ。</td></tr>
+  </tbody>
+</table>
+
+<h2>コミットの分け方</h2>
+
+<ul>
+  <li><strong>1つの目的に、1つのコミット。</strong>バグ修正と誤字の修正は、別のコミットにします。</li>
+  <li>分ける基準は、ファイルではなく目的です。1つの目的が複数のファイルにまたがるなら、同じコミットに入れます。</li>
+  <li>今回の目的に合う変更だけを <code>git add</code> し、<code>git diff --staged</code> で確かめてからコミットします。</li>
+</ul>
+
+<h2>コミットメッセージ</h2>
+
+<ul>
+  <li>1行目は、変更の短い概要。どこの何を変えたのかが、差分を開かなくてもわかるように書きます。</li>
+  <li>詳しい説明が必要なら、空行を1つはさんで続けます。</li>
+  <li>言語や書式の決まりは、チームのルールに従います。</li>
+</ul>
+
+<table>
+  <thead><tr><th>伝わりにくい</th><th>伝わる</th></tr></thead>
+  <tbody>
+    <tr><td>いろいろ修正</td><td>空のパスワードでログインできるバグを修正</td></tr>
+    <tr><td>更新</td><td>READMEの誤字を修正</td></tr>
+    <tr><td>修正その2</td><td>送信ボタンの色を青に変更</td></tr>
+  </tbody>
+</table>
+
+<h2>出典</h2>
+<ul class="sources">
+  <li><span class="lang-tag">日本語</span><a href="https://git-scm.com/book/ja/v2/Git-の基本-コミット履歴の閲覧">Pro Git 第2版 2.3 コミット履歴の閲覧</a></li>
+  <li><span class="lang-tag">日本語</span><a href="https://git-scm.com/book/ja/v2/Git-での分散作業-プロジェクトへの貢献">Pro Git 第2版 5.2 プロジェクトへの貢献</a>「コミットの指針」</li>
+  <li><span class="lang-tag">英語</span><a href="https://git-scm.com/docs/git-log">Git Reference: git-log</a>、<a href="https://git-scm.com/docs/git-show">git-show</a></li>
+</ul>
+
+<nav class="lesson-nav">
+  <a href="../lessons/0002-reading-history.html">← レッスン2: 履歴を読む・コミットを分ける</a>
+  <a href="staging-and-commit.html">リファレンス: ステージングとコミット →</a>
+</nav>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "teach-ja",
+  "version": "0.1.0",
+  "description": "Japanese-ready fork of the /teach skill from mattpocock/skills: a stateful teaching workspace that interviews you, finds trusted sources, and builds short interactive HTML lessons — in 日本語 or English.",
+  "license": "MIT",
+  "keywords": ["teach", "learning", "japanese", "日本語", "lessons"],
+  "skills": ["./skills/teach-ja"]
+}

@@ -919,9 +919,20 @@ Please use one folder per topic.
 *Shigoto no purojekuto to wa, wakete kudasai.*\
 Keep it separate from your work projects.
 
-**今、このリポジトリはプライベートです。使いたい人は、私に言ってください。**\
-*Ima, kono ripojitori wa puraibēto desu. Tsukaitai hito wa, watashi ni itte kudasai.*\
-Right now this repository is private. If you want to use it, please tell me.
+**このリポジトリは公開されています。だれでもインストールできます。**\
+*Kono ripojitori wa kōkai sarete imasu. Dare demo insutōru dekimasu.*\
+This repository is public, so anyone can install it.
+
+[このコマンドを見せる / Show these commands]
+
+```text
+/plugin marketplace add digjoynandi12-arch/teach-ja
+/plugin install teach-ja@teach-ja
+```
+
+**この二つのコマンドを、Claude Code に入力してください。**\
+*Kono futatsu no komando o, Kurōdo Kōdo ni nyūryoku shite kudasai.*\
+Please type these two commands into Claude Code.
 
 ---
 
@@ -1032,20 +1043,6 @@ Finally, let's look inside the repository.
 **`upstream` には、元のファイルが、そのまま入っています。**\
 *upstream niwa, moto no fairu ga, sono mama haitte imasu.*\
 `upstream` has the original files, unchanged.
-
-## 9. クレジット / Credits (30 sec)
-
-**元のスキルは、Matt Pocock さんが作りました。MIT ライセンスです。**\
-*Moto no sukiru wa, Matto Pokokku-san ga tsukurimashita. Emu-ai-tī raisensu desu.*\
-The original skill was made by Matt Pocock. It's under the MIT license.
-
-**教え方の考え方は、Matt Pocock さんのアイデアです。**\
-*Oshiekata no kangaekata wa, Matto Pokokku-san no aidea desu.*\
-The teaching approach is Matt Pocock's idea.
-
-**私が変えたのは、日本語の部分です。**\
-*Watashi ga kaeta no wa, nihongo no bubun desu.*\
-What I changed is the Japanese part.
 
 ---
 

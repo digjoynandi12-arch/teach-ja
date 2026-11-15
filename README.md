@@ -4,10 +4,6 @@
 
 `teach-ja` turns any folder into a personal **teaching workspace**. You type `/teach-ja` and what you want to learn; Claude interviews you about *why*, finds trustworthy sources, and builds short, interactive HTML lessons. Everything it learns about you is saved as plain files in that folder, so the next session picks up where the last one stopped — even in a brand-new chat.
 
-It is a fork of the `teach` skill from [mattpocock/skills](https://github.com/mattpocock/skills) (MIT), extended so it works properly in **Japanese**: polite register, consistent terminology, Japanese typography, quizzes that make sense without spaces between words, Japanese sources and communities, and file names that survive macOS ↔ Windows.
-
-> Every screenshot in this README comes from a real run of this skill (`claude -p` with Claude Code), in Japanese, in [`examples/git-basics/`](./examples/git-basics/). Only local file paths were removed from the chat screenshots.
-
 ---
 
 ## Contents
@@ -307,8 +303,3 @@ teach-ja/
 ```
 
 ---
-
-## 9. Credits and license
-
-- Original `teach` skill: © 2026 Matt Pocock, [mattpocock/skills](https://github.com/mattpocock/skills), MIT License. The teaching philosophy (mission, knowledge/skills/wisdom, zone of proximal development, storage strength, learning records) is his.
-- Japanese-language changes: this repository, MIT License. See [LICENSE](./LICENSE).
